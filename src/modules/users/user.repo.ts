@@ -27,7 +27,18 @@ export class UserRepo {
     return knex
       .select('*')
       .from(this.table)
-      .whereRaw(`phone = ${phone}`)
+      .whereRaw(`phone = '${phone}'`)
       .first();
+  }
+
+  findById(id: string, knex = this.knex) {
+    return knex.select('*').from(this.table).whereRaw(`id = '${id}'`).first();
+  }
+
+  verifyUser(id: string, knex = this.knex) {
+    return knex
+      .update({ is_verified: true }, '*')
+      .from(this.table)
+      .whereRaw(`id = '${id}'`);
   }
 }

@@ -39,3 +39,20 @@ export class RegisterDto implements UserInterface {
   @MaxLength(20)
   password: string;
 }
+
+@Injectable()
+export class VerifyOtp {
+  @IsDefined()
+  @IsNumberString()
+  @IsNotEmpty()
+  @MinLength(6)
+  @MaxLength(6)
+  otp: string;
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(60)
+  @MaxLength(64)
+  code: string;
+}

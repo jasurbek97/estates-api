@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RegisterDto } from './dto/index.dto';
+import { RegisterDto, VerifyOtp } from './dto/index.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,13 +12,18 @@ export class AuthController {
     return this.authService.register(payload);
   }
 
+  @Post('/verify')
+  verify(@Body() payload: VerifyOtp) {
+    return this.authService.verify(payload);
+  }
+
   @Post('/login')
   login(@Req() req) {
     return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
+  @Get('/profile')
   getProfile(@Req() req) {
     return req.user;
   }

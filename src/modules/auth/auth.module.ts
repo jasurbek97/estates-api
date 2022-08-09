@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { EXPIRES_IN, JWT_SECRET } from '@env';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { OneTimeCodesRepo } from './repo/one-time-codes.repo';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, OneTimeCodesRepo],
 })
 export class AuthModule {}
