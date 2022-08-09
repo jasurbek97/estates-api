@@ -35,7 +35,7 @@ export const randomString = (() => {
     num: gen(48, 57),
     alphaLower: gen(97, 122),
     alphaUpper: gen(65, 90),
-    special: [...`~!@#$%^&*()_+-=[]\{}|;:",./<>?`],
+    special: [...`~!@#$%^&*()_+-=[]{}|;:,./<>?`],
   };
 
   function* iter(len, set) {

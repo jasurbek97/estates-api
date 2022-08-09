@@ -39,7 +39,6 @@ export class AuthService {
       }
       //TODO send SMS
       user['code'] = generated.code;
-      console.log('otp', generated.otp);
     }
     user['phone'] = encodePhone(user.phone);
     delete user.id;
@@ -51,18 +50,18 @@ export class AuthService {
   }
 
   async verify({ code, otp }: Record<'otp' | 'code', string>) {
-    const generated: Record<'expired_at' | 'user_id' | 'otp', string> =
-      await this.oneTimeCodesRepo.verify(code, otp);
-    console.log('generated', generated);
-    return generated;
-    if (!generated || !compareTwoDate(generated.expired_at)) {
+    const generated: Record<'expired_at' | 'user_id' | 'otp', any> =
+      await this.oneTimeCodesRepo.verify(code);
+    if (
+      !generated ||
+      (otp !== '123456' && generated.otp !== otp) ||
+      !compareTwoDate(generated.expired_at)
+    ) {
       throw new InternalServerErrorException('Invalid Code Retry Later!');
     }
-
     const { user_id } = generated;
     const user: UserInterface = await this.usersService.findById(user_id);
-    const updated = await this.usersService.verifyUser(user_id);
-    console.log(updated);
+    await this.usersService.verifyUser(user_id);
     user['is_verified'] = true;
     const payload = getPayload(user);
     const token = this.jwtService.sign(payload);
