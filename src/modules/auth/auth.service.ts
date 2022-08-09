@@ -50,7 +50,7 @@ export class AuthService {
   }
 
   async verify({ code, otp }: Record<'otp' | 'code', string>) {
-    const generated: Record<'expired_at' | 'user_id' | 'otp', any> =
+    const generated: Record<'expired_at' | 'user_id' | 'otp', any | undefined> =
       await this.oneTimeCodesRepo.verify(code);
     if (
       !generated ||
