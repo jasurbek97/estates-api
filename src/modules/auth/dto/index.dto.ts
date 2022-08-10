@@ -56,3 +56,20 @@ export class VerifyOtp {
   @MaxLength(64)
   code: string;
 }
+
+@Injectable()
+export class LoginDto {
+  @IsDefined()
+  @IsNumberString()
+  @IsNotEmpty()
+  @MinLength(12)
+  @MaxLength(12)
+  phone: string;
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(20)
+  password: string;
+}

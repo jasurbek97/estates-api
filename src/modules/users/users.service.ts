@@ -43,4 +43,8 @@ export class UsersService {
     }
     return this.userRepo.create(data);
   }
+
+  setAttempt(id, attempt: number) {
+    return this.userRepo.setAttempt(id, attempt);
+  }
 }

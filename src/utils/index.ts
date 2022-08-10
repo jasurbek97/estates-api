@@ -20,7 +20,10 @@ export const expireTime = (minutes = 5) => {
   return date;
 };
 
-export const isMatch = async (password: string, hash: string) => {
+export const isMatch = async (
+  password: string,
+  hash: string,
+): Promise<boolean> => {
   return await bcrypt.compare(password, hash);
 };
 
@@ -55,4 +58,11 @@ export const encodePhone = (phone: string) => {
 
 export const compareTwoDate = (date: string): boolean => {
   return new Date(date) > new Date();
+};
+
+export const dateDiff = (date: string, date2 = new Date()): number => {
+  const now = moment(date2);
+  const end = moment(date);
+  const duration = moment.duration(end.diff(now));
+  return ~~duration.asMinutes();
 };

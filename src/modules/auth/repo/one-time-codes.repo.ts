@@ -34,7 +34,15 @@ export class OneTimeCodesRepo {
       .select('*')
       .from(this.table)
       .whereRaw(`code = '${code}'`)
-
+      .whereRaw(`is_deleted is false`)
       .first();
+  }
+
+  delete(code: string, knex = this.knex) {
+    return knex
+      .update({ is_deleted: true })
+      .from(this.table)
+      .whereRaw(`code = '${code}'`)
+      .whereRaw(`is_deleted is false`);
   }
 }

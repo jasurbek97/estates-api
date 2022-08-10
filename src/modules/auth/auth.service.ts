@@ -1,7 +1,18 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { compareTwoDate, encodePhone, encrypt } from '@utils';
+import {
+  compareTwoDate,
+  dateDiff,
+  encodePhone,
+  encrypt,
+  isMatch,
+} from '@utils';
 import { UserInterface } from '../users/interfaces/user.interface';
 import { OneTimeCodesRepo } from './repo/one-time-codes.repo';
 import { getPayload } from './payload';
@@ -14,8 +25,24 @@ export class AuthService {
     private oneTimeCodesRepo: OneTimeCodesRepo,
   ) {}
 
-  async login(user: any) {
-    const payload = { phone: user.phone, user_id: user.id };
+  async login({ password, phone }: Record<'phone' | 'password', string>) {
+    const user: UserInterface = await this.usersService.findOne(phone);
+    const is_equal = await isMatch(password, user.password);
+    const { id, verification_attempt, blocked_at } = user;
+
+    if (verification_attempt > 3 && blocked_at && compareTwoDate(blocked_at)) {
+      throw new ForbiddenException(
+        `Too many attempt to login try after ${dateDiff(blocked_at)} minutes!`,
+      );
+    }
+
+    if (!is_equal) {
+      await this.usersService.setAttempt(id, verification_attempt + 1);
+      throw new BadRequestException('Incorrect phone number or password!');
+    }
+
+    await this.usersService.setAttempt(id, 1);
+    const payload = getPayload(user);
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -50,7 +77,7 @@ export class AuthService {
   }
 
   async verify({ code, otp }: Record<'otp' | 'code', string>) {
-    const generated: Record<'expired_at' | 'user_id' | 'otp', any | undefined> =
+    const generated: Record<'expired_at' | 'user_id' | 'otp', any> =
       await this.oneTimeCodesRepo.verify(code);
     if (
       !generated ||
@@ -59,6 +86,9 @@ export class AuthService {
     ) {
       throw new InternalServerErrorException('Invalid Code Retry Later!');
     }
+
+    //Delete code
+    await this.oneTimeCodesRepo.delete(code);
     const { user_id } = generated;
     const user: UserInterface = await this.usersService.findById(user_id);
     await this.usersService.verifyUser(user_id);

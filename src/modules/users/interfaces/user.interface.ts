@@ -11,4 +11,5 @@ export interface UserInterface {
   email?: string;
   role?: string;
   state?: string;
+  blocked_at?: string;
 }
