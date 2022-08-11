@@ -47,4 +47,11 @@ export class UsersService {
   setAttempt(id, attempt: number) {
     return this.userRepo.setAttempt(id, attempt);
   }
+
+  async isExist(phone: string) {
+    const user = await this.userRepo.findOne(phone);
+    return {
+      exist: !!user,
+    };
+  }
 }

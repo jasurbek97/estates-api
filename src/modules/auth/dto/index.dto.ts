@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 import { UserInterface } from '../../users/interfaces/user.interface';
 
-@Injectable()
 export class RegisterDto implements UserInterface {
   @IsDefined()
   @IsNumberString()
@@ -38,6 +37,15 @@ export class RegisterDto implements UserInterface {
   @MinLength(8)
   @MaxLength(20)
   password: string;
+}
+
+export class IsExistDto {
+  @IsDefined()
+  @IsNumberString()
+  @IsNotEmpty()
+  @MinLength(12)
+  @MaxLength(12)
+  phone: string;
 }
 
 @Injectable()

@@ -48,6 +48,10 @@ export class AuthService {
     };
   }
 
+  async isExist({ phone }: Record<'phone', string>) {
+    return await this.usersService.isExist(phone);
+  }
+
   async register({ password, ...data }: UserInterface) {
     const [user]: UserInterface[] = await this.usersService.create({
       password: await encrypt(password),
