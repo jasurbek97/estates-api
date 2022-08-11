@@ -42,7 +42,7 @@ export class AuthService {
       throw new BadRequestException('Incorrect phone number or password!');
     }
 
-    await this.usersService.setAttempt(id, 1);
+    await this.usersService.setAttempt(id, 0);
     const payload = getPayload(user);
     return {
       access_token: this.jwtService.sign(payload),
@@ -56,16 +56,24 @@ export class AuthService {
     if (!exist) {
       throw new NotFoundException('Code not found!');
     }
-    const user = await this.usersService.findById(exist.user_id);
+    let user = await this.usersService.findById(exist.user_id);
     if (!user) {
       throw new NotFoundException('User not found!');
     }
 
-    const { verification_attempt, blocked_at } = user;
+    if (user.blocked_at && dateDiff(user.blocked_at) == 0) {
+      [user] = await this.usersService.setAttempt(user.id, 0);
+    }
 
-    if (verification_attempt > 3 && blocked_at && compareTwoDate(blocked_at)) {
+    if (
+      user.verification_attempt > 3 &&
+      user.blocked_at &&
+      compareTwoDate(user.blocked_at)
+    ) {
       throw new ForbiddenException(
-        `Too many attempt to login try after ${dateDiff(blocked_at)} minutes!`,
+        `Too many attempt to login try after ${dateDiff(
+          user.blocked_at,
+        )} minutes!`,
       );
     }
 

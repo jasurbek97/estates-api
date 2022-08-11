@@ -44,9 +44,9 @@ export class UserRepo {
 
   setAttempt(id: string, attempt: number, knex = this.knex) {
     const data = { verification_attempt: attempt, blocked_at: null };
-    if (attempt > 3) {
+    if (attempt >= 3) {
       data.blocked_at = expireTime(10);
-    } else if (attempt === 1) {
+    } else if (attempt <= 1) {
       data.blocked_at = null;
     }
     return knex.update(data, '*').from(this.table).whereRaw(`id = '${id}'`);
