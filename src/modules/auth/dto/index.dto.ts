@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   IsDefined,
   IsNotEmpty,
@@ -48,7 +47,6 @@ export class IsExistDto {
   phone: string;
 }
 
-@Injectable()
 export class VerifyOtp {
   @IsDefined()
   @IsNumberString()
@@ -65,7 +63,6 @@ export class VerifyOtp {
   code: string;
 }
 
-@Injectable()
 export class LoginDto {
   @IsDefined()
   @IsNumberString()
@@ -80,4 +77,13 @@ export class LoginDto {
   @MinLength(8)
   @MaxLength(20)
   password: string;
+}
+
+export class ResendDto {
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(60)
+  @MaxLength(64)
+  code: string;
 }

@@ -9,7 +9,13 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { IsExistDto, LoginDto, RegisterDto, VerifyOtp } from './dto/index.dto';
+import {
+  IsExistDto,
+  LoginDto,
+  RegisterDto,
+  ResendDto,
+  VerifyOtp,
+} from './dto/index.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +40,11 @@ export class AuthController {
   @Post('/login')
   login(@Body() payload: LoginDto) {
     return this.authService.login(payload);
+  }
+
+  @Post('/resend')
+  resend(@Body() payload: ResendDto) {
+    return this.authService.resend(payload);
   }
 
   @UseGuards(JwtAuthGuard)

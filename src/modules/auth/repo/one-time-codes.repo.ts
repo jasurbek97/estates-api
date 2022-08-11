@@ -29,12 +29,20 @@ export class OneTimeCodesRepo {
       .into(this.table);
   }
 
-  verify(code: string, knex = this.knex) {
+  findOne(code: string, knex = this.knex) {
     return knex
       .select('*')
       .from(this.table)
       .whereRaw(`code = '${code}'`)
       .whereRaw(`is_deleted is false`)
+      .first();
+  }
+
+  getOne(code: string, knex = this.knex) {
+    return knex
+      .select('*')
+      .from(this.table)
+      .whereRaw(`code = '${code}'`)
       .first();
   }
 
