@@ -7,6 +7,7 @@ import { EXPIRES_IN, JWT_SECRET } from '@env';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { OneTimeCodesRepo } from './repo/one-time-codes.repo';
+import { RefreshTokenRepo } from './repo/refresh-token.repo';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { OneTimeCodesRepo } from './repo/one-time-codes.repo';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, OneTimeCodesRepo],
+  providers: [AuthService, JwtStrategy, OneTimeCodesRepo, RefreshTokenRepo],
 })
 export class AuthModule {}

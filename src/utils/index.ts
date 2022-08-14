@@ -19,6 +19,12 @@ export const expireTime = (minutes = 5) => {
   date.setMinutes(m);
   return date;
 };
+export const expireDate = (day = 10) => {
+  const date = new Date();
+  const m = date.getDate() + day;
+  date.setDate(m);
+  return date;
+};
 
 export const isMatch = async (
   password: string,

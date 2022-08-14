@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import {
   IsExistDto,
   LoginDto,
+  RefreshDto,
   RegisterDto,
   ResendDto,
   VerifyOtp,
@@ -45,6 +46,11 @@ export class AuthController {
   @Post('/resend')
   resend(@Body() payload: ResendDto) {
     return this.authService.resend(payload);
+  }
+
+  @Post('/refresh')
+  refresh(@Body() payload: RefreshDto) {
+    return this.authService.refresh(payload);
   }
 
   @UseGuards(JwtAuthGuard)

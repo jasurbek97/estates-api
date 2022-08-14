@@ -87,3 +87,18 @@ export class ResendDto {
   @MaxLength(64)
   code: string;
 }
+
+export class RefreshDto {
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(60)
+  access_token: string;
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(60)
+  @MaxLength(64)
+  refresh_token: string;
+}

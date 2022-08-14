@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -12,11 +13,13 @@ import {
   dateDiff,
   encodePhone,
   encrypt,
+  formatDatetime,
   isMatch,
 } from '@utils';
 import { UserInterface } from '../users/interfaces/user.interface';
 import { OneTimeCodesRepo } from './repo/one-time-codes.repo';
 import { getPayload } from './payload';
+import { RefreshTokenRepo } from './repo/refresh-token.repo';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +27,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private oneTimeCodesRepo: OneTimeCodesRepo,
+    private refreshTokenRepo: RefreshTokenRepo,
   ) {}
 
   async login({ password, phone }: Record<'phone' | 'password', string>) {
@@ -44,8 +48,15 @@ export class AuthService {
 
     await this.usersService.setAttempt(id, 0);
     const payload = getPayload(user);
+    const token = this.jwtService.sign(payload);
+    const refresh_token = await this.refreshTokenRepo.generate(id);
+    if (!refresh_token) {
+      throw new InternalServerErrorException('Generating refresh token error!');
+    }
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: token,
+      refresh_token: refresh_token.token,
+      expired_at: formatDatetime(refresh_token.expired_at),
     };
   }
 
@@ -153,8 +164,47 @@ export class AuthService {
     user['is_verified'] = true;
     const payload = getPayload(user);
     const token = this.jwtService.sign(payload);
+    const refresh_token = await this.refreshTokenRepo.generate(user_id);
+    if (!refresh_token) {
+      throw new InternalServerErrorException('Generating refresh token error!');
+    }
     return {
       access_token: token,
+      refresh_token: refresh_token.token,
+      expired_at: formatDatetime(refresh_token.expired_at),
+    };
+  }
+
+  async refresh({ access_token, refresh_token }: any) {
+    const userInfo: any = await this.jwtService.decode(access_token);
+    if (!userInfo) {
+      throw new InternalServerErrorException('Invalid access token!');
+    }
+
+    const user: UserInterface = await this.usersService.findById(userInfo.id);
+    if (!user) {
+      throw new NotFoundException('User not found!');
+    }
+    const refresh = await this.refreshTokenRepo.findOne(refresh_token, user.id);
+    if (!refresh) {
+      throw new InternalServerErrorException('Invalid refresh token!');
+    }
+    if (!compareTwoDate(refresh.expired_at)) {
+      throw new UnauthorizedException('Refresh token is expired!');
+    }
+
+    const payload = getPayload(user);
+    const new_access_token = this.jwtService.sign(payload);
+    const new_refresh_token = await this.refreshTokenRepo.generate(user.id);
+    if (!new_refresh_token) {
+      throw new InternalServerErrorException('Generating refresh token error!');
+    }
+
+    await this.refreshTokenRepo.delete(refresh.id);
+    return {
+      access_token: new_access_token,
+      refresh_token: new_refresh_token.token,
+      expired_at: formatDatetime(new_refresh_token.expired_at),
     };
   }
 }
