@@ -9,11 +9,8 @@ export class RefreshTokenRepo {
 
   constructor(@InjectConnection() private readonly knex: Knex) {}
 
-  async generate(user_id: string, parent_id = null, knex = this.knex) {
+  async generate(user_id: string, knex = this.knex) {
     return await knex.transaction(async (trx) => {
-      if (parent_id) {
-        await this.delete(parent_id, trx);
-      }
       const [refresh] = await trx
         .insert(
           {
@@ -21,7 +18,6 @@ export class RefreshTokenRepo {
             user_id: user_id,
             token: randomString(64),
             expired_at: expireDate(),
-            parent_id: parent_id,
           },
           ['id', 'token', 'expired_at'],
         )
